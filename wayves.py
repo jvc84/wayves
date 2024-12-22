@@ -80,20 +80,18 @@ class Show(object):
     def show_cava(category):
         cava_position = option_values['cava_values'][f'{category}_cava_sections']
         play_cava = current_directory + '/scripts/play_cava.sh'
-        cava_config_processes = int(subprocess.check_output(["ps a | grep cava_option_config | wc -l"], shell=True))
+        
+        roc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
+        
+        if int(roc) > 4:
+            os.system("pkill -f player_tracker")
 
-        if cava_config_processes > 4:
-            play_cava_list = str(subprocess.check_output(["ps aux | grep -ie play_cava.sh | awk '{print $2}'"], shell=True))[2:-3]
-            config_cava_list = str(subprocess.check_output(["ps aux | grep -ie cava_option_config | awk '{print $2}'"], shell=True))[2: -3]
-            pid_list = (play_cava_list + config_cava_list).split("\\n")
-
-            for i in pid_list:
-                os.system(f"kill -9 {i} &> /dev/null")
-
-
-        os.system(f"{play_cava} {cava_position} {category} {token} {shared.player}")
-        os.system(f"ps aux | grep -ie {token}" + " | awk '{print $2}' | xargs kill -9 &> /dev/null")
-
+        try:
+            proc = subprocess.Popen([f"{play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
+            proc.wait()
+        except KeyboardInterrupt:
+            proc.kill()
+    
         return
 
     @staticmethod

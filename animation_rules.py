@@ -1,5 +1,6 @@
 from time import sleep
 from pathlib import Path
+import subprocess
 import secrets
 import shared
 import os
@@ -29,4 +30,8 @@ class Animation(object):
         if category == 'full':
             self.animate_full(self.time, self.frames)
         else:
-            os.system(f"'{play_animation}' '{self.time}' '{self.frames}' '{category}' '{token}' '{shared.player}'|")
+            try:
+                proc = subprocess.Popen([f"'{play_animation}' '{self.time}' '{self.frames}' '{category}' '{token}' '{shared.player}'"], shell=True)
+                proc.wait()
+            except:
+                proc.kill()

@@ -37,40 +37,18 @@ get_variables() {
 
 check_state() {
     get_variables
-    if [ "$category" = "off" ]; then
-        while :
-        do
-            get_variables
-            if [ $check_music == true ]; then
-                break
-            fi
 
-            sleep 1
-        done
+    while :
+    do
+      get_variables
+        if [ \( "$category" = "off" \) -a  \( "$check_player" = "true" \) ] \
+        || [ \( "$category" = "inactive" \)  -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "true" \) \) ] \
+        || [ \( "$category" = "active" \) -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "false" \) \) ]; then
+            break
+        fi
 
-    elif [ "$category" = "inactive" ]; then
-        while :
-        do
-            get_variables
-            if [ $check_player == false ] || [ $check_music == true ]; then
-                break
-            fi
-
-            sleep 1
-        done
-
-    elif [ "$category" = "active" ]; then
-        while :
-        do
-            get_variables
-            if [ $check_music == false ] || [ $check_player == false ]; then
-                break
-            fi
-
-            sleep 1
-        done
-
-    fi
+        sleep 1
+    done
 }
 
 check_state && terminate
