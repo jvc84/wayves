@@ -81,9 +81,14 @@ class Show(object):
         cava_position = option_values['cava_values'][f'{category}_cava_sections']
         play_cava = current_directory + '/scripts/play_cava.sh'
         
-        roc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
-        
-        if int(roc) > 4:
+        config_porc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
+        cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
+
+        print(cache_files)
+        if int(cache_files) > 4:
+            os.system("rm  ~/.cache/wayves/* ")
+
+        if int(config_porc) > 4:
             os.system("pkill -f player_tracker")
 
         try:
