@@ -84,11 +84,10 @@ class Show(object):
         config_porc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
         cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
 
-        print(cache_files)
-        if int(cache_files) > 4:
-            os.system("rm  ~/.cache/wayves/* ")
+        if int(cache_files) > 5:
+            os.system("rm  ~/.cache/wayves/*")
 
-        if int(config_porc) > 4:
+        if int(config_porc) > 5:
             os.system("pkill -f player_tracker")
 
         try:
