@@ -23,6 +23,7 @@ cache_config() {
 }
 
 
+
 # Main
 mkdir -p "$config_path" &> /dev/null
 mkdir -p "$cache_path" &> /dev/null
@@ -36,8 +37,7 @@ if [ "$cava_position" = "all" ]; then
     cut_cava="s/$//"
 
 else
-    bars=$(grep -E "bars=|bars =" "$config_file" | cut -f2 -d "=" | cut -f2 -d " " | head -n1)
-    echo "bars"
+    bars=$(grep -E "bars=|bars =" "$cached_config" | cut -f2 -d "=" | cut -f2 -d " " | head -n1)
     bars=$(echo "scale=0; $bars / 2" | bc)
 
     # shellcheck disable=SC2183
