@@ -28,7 +28,6 @@ mkdir -p "$config_path" &> /dev/null
 mkdir -p "$cache_path" &> /dev/null
 
 cache_config ||
-echo "$PARENTDIR"
 (cp "$PARENTDIR/assets/cava/cava_option_config" "$config_file" && cache_config) ||
 (echo "Cannot cache cava config!" && exit 1)
 
@@ -38,7 +37,7 @@ if [ "$cava_position" = "all" ]; then
 
 else
     bars=$(grep -E "bars=|bars =" "$config_file" | cut -f2 -d "=" | cut -f2 -d " " | head -n1)
-
+    echo "bars"
     bars=$(echo "scale=0; $bars / 2" | bc)
 
     # shellcheck disable=SC2183
