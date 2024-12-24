@@ -103,7 +103,6 @@ class Show(object):
         else:
             insert = ""
 
-        print("String ", ap_string)
         to_kill_proc = str(
             subprocess.check_output(
             [f"ps aux | grep -E 'player_tracker|play_cava' {insert}" + " | awk '{print $2}'"],
