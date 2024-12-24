@@ -80,16 +80,43 @@ class Show(object):
     def show_cava(category):
         cava_position = option_values['cava_values'][f'{category}_cava_sections']
         play_cava = current_directory + '/scripts/play_cava.sh'
-        
-        config_proc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
+
+        active_proc = str(
+            subprocess.check_output(
+                ["ps aux | grep \"cava -p\" | awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
+                shell=True
+            )
+        )[2:-3].split("\\n")
+
+
+        ap_string = active_proc[0]
+        active_proc = active_proc[1:-1]
+
+        for i in active_proc:
+            ap_string += f"|{i}"
+
+        if len(ap_string) > 1:
+            ap_string  = ap_string[:-1]
+            insert = f"  | grep -Evw '{ap_string}'  "
+
+        else:
+            insert = ""
+
+        to_kill_proc = str(
+            subprocess.check_output(
+            [f"ps aux | grep 'player_tracker' {insert}" + " | awk '{print $2}'"],
+            shell=True
+            )
+        )[2:-3].split("\\n")
+
+        for i in to_kill_proc:
+            os.system(f"kill  {i}")
+
         cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
 
         if int(cache_files) > 3:
             os.system("rm  ~/.cache/wayves/*")
-        
-        if int(config_proc) > 5:
-            os.system("pkill -f caav_option_config")
-            os.system("pkill -f player_tracker")
+
 
         try:
             proc = subprocess.Popen([f"{play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
