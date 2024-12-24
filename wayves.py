@@ -96,7 +96,8 @@ class Show(object):
             ap_string += f"|{i}"
 
         if len(ap_string) > 1:
-            ap_string += f"{token}"
+            # ap_string += f"{token}"
+            # ap_string = ap_string[:-1]
             insert = f"  | grep -Evw '{ap_string}'  "
 
         else:
