@@ -84,14 +84,15 @@ class Show(object):
         config_proc = str(subprocess.check_output([f"ps aux | grep cava_option_config | wc -l"], shell=True))[2:-3]
         cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
 
-        if int(cache_files) > 2:
+        if int(cache_files) > 3:
             os.system("rm  ~/.cache/wayves/*")
         
-        if int(config_proc) > 2:
+        if int(config_proc) > 5:
+            os.system("pkill -f caav_option_config")
             os.system("pkill -f player_tracker")
 
         try:
-            proc = subprocess.Popen([f"setsid  {play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
+            proc = subprocess.Popen([f"{play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
             proc.wait()
         except KeyboardInterrupt:
             proc.kill()
