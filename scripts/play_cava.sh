@@ -29,7 +29,7 @@ mkdir -p "$config_path" &> /dev/null
 mkdir -p "$cache_path" &> /dev/null
 
 cache_config ||
-(cp "$PARENTDIR/assets/cava/cava_option_config" "$config_file" && cache_config) ||
+(cp "$PARENTDIR/assets/cava/cava_option_config" "$config_file" &> /dev/null && cache_config) ||
 (echo "Cannot cache cava config!" && exit 1)
 
 

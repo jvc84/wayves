@@ -83,13 +83,14 @@ class Show(object):
 
         active_proc = str(
             subprocess.check_output(
-                ["ps aux | grep \"cava -p\" | awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
+                ["ps aux | grep \"cava -p\" | grep \"wayves\" n| awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
                 shell=True
             )
         )[2:-3].split("\\n")
 
 
         ap_string = active_proc[0]
+        ap_string += f"|{token}"
         active_proc = active_proc[1:-1]
 
         for i in active_proc:
@@ -110,7 +111,7 @@ class Show(object):
         )[2:-3].split("\\n")
 
         for i in to_kill_proc:
-            os.system(f"kill  {i}")
+            os.system(f"kill  {i} &> /dev/null")
 
         cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
 
