@@ -53,7 +53,50 @@ else
     fi
 fi
 
+
+get_variables() {
+    if [[ "$player" == "cava" ]]; then
+	      player_status="Playing"
+        category="active"
+    else
+      	player_status="$( playerctl status --player="$player" 2> /dev/null)"
+    fi
+
+    # check_music
+    if [ "$player_status" = "Playing" ]; then
+        check_music="true"
+    else
+        check_music="false"
+    fi
+
+    # check_player
+    if [[ $player_status == "P"* ]]; then
+        check_player="true"
+    else
+        check_player="false"
+    fi
+}
+
+
+check_state() {
+    get_variables
+
+    while :
+    do
+      get_variables
+        if [ \( "$category" = "off" \) -a  \( "$check_player" = "true" \) ] \
+        || [ \( "$category" = "inactive" \)  -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "true" \) \) ] \
+        || [ \( "$category" = "active" \) -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "false" \) \) ]; then
+            pkill -f "$token"
+            exit 1
+        fi
+        sleep 1
+    done
+}
+
+
 # add dots befor '$' or after '^' to remove bars
 setsid cava -p "$cached_config" | sed -u "s/;//g;s/0/▁/g;s/1/▂/g;s/2/▃/g;s/3/▄/g;s/4/▅/g;s/5/▆/g;s/6/▇/g;s/7/█/g;" | sed -u "$cut_cava" &
-"$MYDIR/player_tracker.sh" "$player" "$category" "$token"
+
+check_state
 

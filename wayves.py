@@ -90,19 +90,21 @@ class Show(object):
 
 
         ap_string = active_proc[0]
-        ap_string += f"|{token}"
         active_proc = active_proc[1:-1]
 
         for i in active_proc:
             ap_string += f"|{i}"
 
+        # print(ap_string)
         if len(ap_string) > 1:
-            ap_string  = ap_string[:-1]
+            # ap_string += f"{token}"
+            ap_string = ap_string[:-1]
             insert = f"  | grep -Evw '{ap_string}'  "
 
         else:
             insert = ""
 
+        print("String ", ap_string)
         to_kill_proc = str(
             subprocess.check_output(
             [f"ps aux | grep 'player_tracker' {insert}" + " | awk '{print $2}'"],
@@ -110,6 +112,8 @@ class Show(object):
             )
         )[2:-3].split("\\n")
 
+
+        # print(to_kill_proc)
         for i in to_kill_proc:
             os.system(f"kill  {i} &> /dev/null")
 
@@ -118,11 +122,10 @@ class Show(object):
         if int(cache_files) > 3:
             os.system("rm  ~/.cache/wayves/*")
 
-
         try:
             proc = subprocess.Popen([f"{play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
             proc.wait()
-        except KeyboardInterrupt:
+        except:
             proc.kill()
     
         return
