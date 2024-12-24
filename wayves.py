@@ -83,7 +83,7 @@ class Show(object):
 
         active_proc = str(
             subprocess.check_output(
-                ["ps aux | grep \"cava -p\" | grep \"wayves\" n| awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
+                ["ps aux | grep \"cava -p\" | grep \"wayves\" | awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
                 shell=True
             )
         )[2:-3].split("\\n")
@@ -95,10 +95,8 @@ class Show(object):
         for i in active_proc:
             ap_string += f"|{i}"
 
-        # print(ap_string)
         if len(ap_string) > 1:
-            # ap_string += f"{token}"
-            ap_string = ap_string[:-1]
+            ap_string += f"{token}"
             insert = f"  | grep -Evw '{ap_string}'  "
 
         else:
@@ -107,13 +105,12 @@ class Show(object):
         print("String ", ap_string)
         to_kill_proc = str(
             subprocess.check_output(
-            [f"ps aux | grep 'player_tracker' {insert}" + " | awk '{print $2}'"],
+            [f"ps aux | grep -E 'player_tracker|play_cava' {insert}" + " | awk '{print $2}'"],
             shell=True
             )
         )[2:-3].split("\\n")
 
 
-        # print(to_kill_proc)
         for i in to_kill_proc:
             os.system(f"kill  {i} &> /dev/null")
 
@@ -123,9 +120,9 @@ class Show(object):
             os.system("rm  ~/.cache/wayves/*")
 
         try:
-            proc = subprocess.Popen([f"{play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
+            proc = subprocess.Popen([f"setsid {play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
             proc.wait()
-        except:
+        except KeyboardInterrupt:
             proc.kill()
     
         return
