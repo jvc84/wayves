@@ -41,9 +41,9 @@ check_state() {
     while :
     do
       get_variables
-        if [ \( "$category" = "off" \) -a  \( "$check_player" = "true" \) ] \
-        || [ \( "$category" = "inactive" \)  -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "true" \) \) ] \
-        || [ \( "$category" = "active" \) -a  \( \( "$check_player" = "false" \) -o \( "$check_music" = "false" \) \) ]; then
+        if [ \( "$category" = "off" \) -a \( "$check_player" = "true" \) ] || \
+        [ \( "$category" = "inactive" \) -a \( \( "$check_player" = "false" \) -o \( "$check_music" = "true" \) \) ] || \
+        [ \( "$category" = "active" \) -a \( \( "$check_player" = "false" \) -o \( "$check_music" = "false" \) \) ]; then
             break
         fi
 

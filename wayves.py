@@ -96,16 +96,16 @@ class Show(object):
             ap_string += f"|{i}"
 
         if len(ap_string) > 1:
-            # ap_string += f"{token}"
+            # ap_string = f"{token}|" + ap_string
             # ap_string = ap_string[:-1]
-            insert = f"  | grep -Evw '{ap_string}'  "
+            insert = f" | grep -Evw '{ap_string}'  "
 
         else:
             insert = ""
 
         to_kill_proc = str(
             subprocess.check_output(
-            [f"ps aux | grep -E 'player_tracker|play_cava' {insert}" + " | awk '{print $2}'"],
+            [f"ps aux | grep -E 'play_cava' {insert}" + " | awk '{print $2}'"],
             shell=True
             )
         )[2:-3].split("\\n")
@@ -124,7 +124,9 @@ class Show(object):
             proc.wait()
         except KeyboardInterrupt:
             proc.kill()
-    
+        except E:
+            proc.kill()
+
         return
 
     @staticmethod
