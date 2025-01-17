@@ -120,7 +120,6 @@ class CatAnimation(Animation):
 
     def animation(self, category):
         just_cat.animation_without_transition(category)
-
         self.animation_without_transition(category)
 
 
@@ -170,15 +169,14 @@ cat_yawns = CatAnimation(
 )
 
 
-
 cat_animations_list = [
-                        cat_default,
-                        cat_blinks,
-                        cat_watches,
-                        cat_watches_alt,
-                        cat_sleeps,
-                        cat_looks_up,
-                        cat_disco,
-                        cat_thinks,
-                        cat_yawns
-                       ]
+    cat_default,
+    cat_blinks,
+    cat_watches,
+    cat_watches_alt,
+    cat_sleeps,
+    cat_looks_up,
+    cat_disco,
+    cat_thinks,
+    cat_yawns
+]

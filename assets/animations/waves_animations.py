@@ -50,14 +50,13 @@ waves_frames_dict = {
         f'{f3}{f1}{f2},'
         f'{f2}{f1}{f1},'
         f'{f1}{f1}{f1},',
-
-
 }
 
 
 class WavesAnimation(Animation):
     def animation(self,category):
         self.animation_without_transition(category)
+
 
 
 waves_main = WavesAnimation(

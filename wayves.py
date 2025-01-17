@@ -5,11 +5,11 @@ from assets.animations.nothing_animations import nothing_empty, nothing_flat
 from assets.animations.info_animations import info_sound, info_no_sound
 from assets.animations.splash_animations import splash_animations_list
 from assets.animations.cat_animations import cat_animations_list
-from shared import show_help, check_player, check_music
+from shared import show_help, check_music_player
 from animation_rules import token
 from pathlib import Path
-from time import sleep
 import subprocess
+from time import sleep
 import shared
 import random
 import sys
@@ -58,6 +58,20 @@ flag_values = {
 }
 
 
+
+def kill_cava(category, pid, stop_event):
+    while True:
+        sound, player = check_music_player()
+        if ((category == 'off' and player is True) or
+                (category == 'inactive' and (sound is True or player is False)) or
+                (category == 'active' and (sound is False or player is False)) or
+                stop_event.is_set()
+        ):
+            pid.kill()
+            break
+        sleep(1)
+
+
 class Show(object):
     @staticmethod
     def show_empty(category):
@@ -77,81 +91,17 @@ class Show(object):
         return
 
     @staticmethod
-    def show_cava(category):
-        cava_position = option_values['cava_values'][f'{category}_cava_sections']
-        play_cava = current_directory + '/scripts/play_cava.sh'
-
-        active_proc = str(
-            subprocess.check_output(
-                ["ps aux | grep \"cava -p\" | grep \"wayves\" | awk '{print $13}' | awk -F 'cava_option_config_' '{print $2}' "],
-                shell=True
-            )
-        )[2:-3].split("\\n")
-
-
-        ap_string = active_proc[0]
-        active_proc = active_proc[1:-1]
-
-        for i in active_proc:
-            ap_string += f"|{i}"
-
-        if len(ap_string) > 1:
-            # ap_string = f"{token}|" + ap_string
-            # ap_string = ap_string[:-1]
-            insert = f" | grep -Evw '{ap_string}'  "
-
-        else:
-            insert = ""
-
-        to_kill_proc = str(
-            subprocess.check_output(
-            [f"ps aux | grep -E 'play_cava' {insert}" + " | awk '{print $2}'"],
-            shell=True
-            )
-        )[2:-3].split("\\n")
-
-
-        for i in to_kill_proc:
-            os.system(f"kill  {i} &> /dev/null")
-
-        cache_files = str(subprocess.check_output(["ls ~/.cache/wayves/ | wc -l"], shell=True))[2:-3]
-
-        if int(cache_files) > 3:
-            os.system("rm  ~/.cache/wayves/*")
-
-        try:
-            proc = subprocess.Popen([f"setsid {play_cava} {cava_position} {category} {token} {shared.player}"], shell=True)
-            proc.wait()
-        except KeyboardInterrupt:
-            proc.kill()
-        except E:
-            proc.kill()
-
-        return
-
-    @staticmethod
     def show_waves(category):
-        waves_start.animation('full')
-
-        if category == 'active':
-            while check_music() is True and check_player() is True:
-                waves_main.animation('full')
-
-        elif category == 'inactive':
-            while check_music() is False and check_player() is True:
-                waves_main.animation('full')
-
-        elif category == 'off':
-            while check_music() is False:
-                waves_main.animation('full')
-
-        waves_stop.animation('full')
+        waves_start.animation('raw')
+        waves_main.animation_without_transition(category, 'full')
+        waves_stop.animation('raw')
 
         return
 
     @staticmethod
     def show_info(category):
-        if check_music() is True:
+        sound, player = check_music_player()
+        if sound is True:
             info_sound.animation(category)
         else:
             info_no_sound.animation(category)
@@ -187,6 +137,56 @@ class Show(object):
         cat_animations_list[index].animation(category)
 
         return
+
+
+def show_cava(category):
+    cache_dir = " ~/.cache/wayves"
+    cache_files = str(subprocess.check_output([f"ls {cache_dir}| wc -l 2>/dev/null"], shell=True))[2:-3]
+    if int(cache_files) > 3:
+        os.system(f"rm  {cache_dir}/*")
+
+    import  threading
+    stop_event = threading.Event()
+
+    cava_position = option_values['cava_values'][f'{category}_cava_sections']
+    play_cava = current_directory + '/scripts/play_cava.sh'
+
+    run_me = [play_cava, cava_position, token]
+
+    string_args = ""
+
+    for i in run_me:
+        string_args += f"'{i}' "
+
+    try:
+        proc = subprocess.Popen([string_args], shell=True)
+        thread1 = threading.Thread(target=proc.wait, args=())
+        thread2 = threading.Thread(target=kill_cava, args=(category, proc, stop_event))
+
+        thread1.start()
+        thread2.start()
+
+        thread1.join()
+        thread2.join()
+
+    except KeyboardInterrupt:
+        print("Exit!")
+        os.system(f"pkill -f {token}")
+        stop_event.set()
+    except Exception as e:
+        print("Cannot run CAVA")
+        sys.exit(1)
+
+    remaining_pids = str(
+        subprocess.check_output([f"ps aux | grep {token} " + " | awk '{print $2}'"], shell=True)
+    )[2:-3].split("\\n")
+
+    for pid in remaining_pids:
+        os.system(f"kill -9 {pid}")
+
+    stop_event.set()
+
+    return
 
 
 def detect_category(detect_fl):
@@ -231,7 +231,7 @@ def single_animation():
             current_category = "off"
         else:
             current_category = 'full'
-
+         
         show_animation(current_category)
 
 
@@ -242,13 +242,14 @@ def multiple_animations():
         print("No player specified!")
         show_help()
     while True:
-        if check_player() is False:
+        sound, player = check_music_player()
+        if player is False:
             current_category = 'off'
 
-        elif check_music() is False:
+        elif sound is False:
             current_category = 'inactive'
 
-        elif check_music() is True:
+        elif sound is True:
             current_category = 'active'
 
         option = 'show_' + flag_values[current_category]
@@ -281,9 +282,6 @@ def parse_arguments():
                         except IndexError:
                             print("\nIncorrect flag was used!")
                             show_help()
-
-
-
                 
                 
 def main():

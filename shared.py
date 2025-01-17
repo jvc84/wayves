@@ -1,54 +1,99 @@
-from subprocess import check_output, CalledProcessError
+import subprocess
 from sys import exit
+import threading
 
 
-player = ""
+player_name = "any"
+status_any = b'Paused\n'
+
+
+def give_output(command):
+    try:
+        out = subprocess.check_output([command], shell=True)
+    except Exception as e:
+        out =  b''
+
+    return out
+
+def check_music_player() -> (bool, bool):
+    global player_name
+
+    if player_name == "cava":
+        return True
+
+    try:
+        status = get_status()
+
+        if status == b'Playing\n':
+            sound = True
+        else:
+            sound = False
+
+        if b'P' in status:
+            player = True
+        else:
+            player = False
+
+    except subprocess.CalledProcessError:
+        sound=  False
+        player = False
+
+    return sound, player
+
+
+def check_playerctl(player_name):
+    try:
+        output = subprocess.check_output([f'playerctl status --player="{player_name}"'], shell=True)
+        if b"Playing" in output:
+            return 1
+        else:
+            return 0
+    except subprocess.CalledProcessError as e:
+        return 0
+
+def run_thread(player_name, stop_event):
+    result = check_playerctl(player_name)
+    if result == 1 and not stop_event.is_set():
+        global status_any
+        status_any = b'Playing\n'
+        stop_event.set()
+    return 0
 
 
 def get_status():
     global player
 
-    output = check_output(
-        [f'playerctl status --player="{player}" 2> /dev/null'],
-        shell=True)
+    if player == "any":
+        command = 'playerctl -l'
+    else:
+        command = f'playerctl status --player="{player}"'
+
+    output = give_output(command)
+
+    if player == "any":
+        global status_any
+
+        if output == b'':
+            return  b'Stopped\n'
+
+        status_any = b'Paused\n'
+
+        stop_event = threading.Event()
+        players = str(subprocess.check_output(['playerctl', '-l'], text=True))[:-1].split('\n')
+
+        threads = []
+        for i, player_name in enumerate(players):
+            thread = threading.Thread(target=run_thread, args=(player_name, stop_event))
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+
+
+        output = status_any
 
     return output
-
-
-def check_music():
-    global player
-
-    if player == "cava":
-        return True
-
-    try:
-        status = get_status()
-
-        if b'Playing' in status:
-            return True
-        else:
-            return False
-
-    except CalledProcessError:
-        return False
-
-
-def check_player():
-    global player
-
-    if player == "cava":
-        return True
-
-    try:
-        status = get_status()
-
-        if b'P' in status:
-            return True
-        else:
-            return False
-
-    except CalledProcessError:
-        return False
 
 
 def frame_multiplier(frames, repeats):

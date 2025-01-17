@@ -106,8 +106,8 @@ left_splash = SplashAnimation(
 )
 
 splash_animations_list = [
-                          dot_splash,
-                          center_splash,
-                          left_splash,
-                          right_splash
-                         ]
+    dot_splash,
+    center_splash,
+    left_splash,
+    right_splash
+]
