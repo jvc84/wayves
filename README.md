@@ -46,7 +46,7 @@ Usage:
 Animation flags:
 
     -h, --help                   -    displays this help end exit
-    -p, --player <PLAYER>        -    player whit activity will be represented by this module. Default value is \"any\",
+    -p, --player <PLAYER>        -    player whit activity will be represented by this module. Default value is "any",
         which stands for detecting any mpris (playerctl) playback    
 (Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l')    
     -o, --off  <OPTION>          -    scripts, that shows whe player is down. 'cat' by default
