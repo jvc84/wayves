@@ -5,7 +5,7 @@ import secrets
 import os
 import subprocess
 import threading
-from shared import check_music_player
+from shared import check_sound_and_player_status
 token = secrets.token_urlsafe(8)
 animation_token = 'animation_' + token
 cava_token = 'cava_' + token
@@ -18,7 +18,7 @@ play_animation = current_directory + '/scripts/play_animation.sh'
 def kill_cava(category, pid, stop_event):
     while True:
         print("Wait")
-        sound, player = check_music_player()
+        sound, player = check_sound_and_player_status()
         if ((category == 'off' and player is True) or
                 (category == 'inactive' and (sound is True or player is False)) or
                 (category == 'active' and (sound is False or player is False)) or
@@ -74,13 +74,12 @@ class Animation(object):
     @staticmethod
     def check_player(category, stop_event):
         while True:
-            sound, player = check_music_player()
+            sound, player = check_sound_and_player_status()
             if ((category == 'off' and player is True) or
                 (category == 'inactive' and (sound is True or player is False)) or
                 (category == 'active' and (sound is False or player is False)) or
                 stop_event.is_set()
             ):
-                stop_event.set()
                 break
             sleep(1)
 
@@ -93,7 +92,6 @@ class Animation(object):
         for frame in frames_list:
             os.system(f"echo '{frame}'")
             sleep(time)
-
 
     @staticmethod
     def animate_full(time, frames, stop_event):
@@ -126,23 +124,14 @@ class Animation(object):
         if category == 'raw':
             self.animate_raw(self.time, self.frames)
 
-        elif 'full' in args:
-            stop_event = threading.Event()
-
-            thread1 = threading.Thread(target=self.animate_full, args=(self.time, self.frames, stop_event))
-            thread2 = threading.Thread(target=self.check_player, args=(category, stop_event,))
-
-            thread1.start()
-            thread2.start()
-
-            thread1.join()
-            thread2.join()
-
-
         else:
             stop_event = threading.Event()
 
-            thread1 = threading.Thread(target=self.animate, args=(self.time, self.frames, stop_event))
+            if 'full' in args:
+                thread1 = threading.Thread(target=self.animate_full, args=(self.time, self.frames, stop_event))
+            else:
+                thread1 = threading.Thread(target=self.animate, args=(self.time, self.frames, stop_event))
+
             thread2 = threading.Thread(target=self.check_player, args=(category, stop_event,))
 
             thread1.start()

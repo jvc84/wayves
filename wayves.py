@@ -5,7 +5,7 @@ from assets.animations.nothing_animations import nothing_empty, nothing_flat
 from assets.animations.info_animations import info_sound, info_no_sound
 from assets.animations.splash_animations import splash_animations_list
 from assets.animations.cat_animations import cat_animations_list
-from shared import show_help, check_music_player
+from shared import show_help, check_sound_and_player_status
 from animation_rules import token
 from pathlib import Path
 import subprocess
@@ -61,7 +61,7 @@ flag_values = {
 
 def kill_cava(category, pid, stop_event):
     while True:
-        sound, player = check_music_player()
+        sound, player = check_sound_and_player_status()
         if ((category == 'off' and player is True) or
                 (category == 'inactive' and (sound is True or player is False)) or
                 (category == 'active' and (sound is False or player is False)) or
@@ -100,7 +100,7 @@ class Show(object):
 
     @staticmethod
     def show_info(category):
-        sound, player = check_music_player()
+        sound, player = check_sound_and_player_status()
         if sound is True:
             info_sound.animation(category)
         else:
@@ -242,7 +242,7 @@ def multiple_animations():
         print("No player specified!")
         show_help()
     while True:
-        sound, player = check_music_player()
+        sound, player = check_sound_and_player_status()
         if player is False:
             current_category = 'off'
 

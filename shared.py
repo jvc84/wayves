@@ -7,7 +7,7 @@ player_name = "any"
 status_any = b'Paused\n'
 
 
-def give_output(command):
+def try_to_check_output(command):
     try:
         out = subprocess.check_output([command], shell=True)
     except Exception as e:
@@ -15,7 +15,7 @@ def give_output(command):
 
     return out
 
-def check_music_player() -> (bool, bool):
+def check_sound_and_player_status() -> (bool, bool):
     global player_name
 
     if player_name == "cava":
@@ -25,20 +25,20 @@ def check_music_player() -> (bool, bool):
         status = get_status()
 
         if status == b'Playing\n':
-            sound = True
+            output_sound = True
         else:
-            sound = False
+            output_sound = False
 
         if b'P' in status:
-            player = True
+            output_player = True
         else:
-            player = False
+            output_player = False
 
     except subprocess.CalledProcessError:
-        sound=  False
-        player = False
+        output_sound = False
+        output_player = False
 
-    return sound, player
+    return output_sound, output_player
 
 
 def check_playerctl(player_name):
@@ -51,7 +51,7 @@ def check_playerctl(player_name):
     except subprocess.CalledProcessError as e:
         return 0
 
-def run_thread(player_name, stop_event):
+def check_player_status(player_name, stop_event):
     result = check_playerctl(player_name)
     if result == 1 and not stop_event.is_set():
         global status_any
@@ -68,7 +68,7 @@ def get_status():
     else:
         command = f'playerctl status --player="{player}"'
 
-    output = give_output(command)
+    output = try_to_check_output(command)
 
     if player == "any":
         global status_any
@@ -82,8 +82,8 @@ def get_status():
         players = str(subprocess.check_output(['playerctl', '-l'], text=True))[:-1].split('\n')
 
         threads = []
-        for i, player_name in enumerate(players):
-            thread = threading.Thread(target=run_thread, args=(player_name, stop_event))
+        for player_name in players:
+            thread = threading.Thread(target=check_player_status, args=(player_name, stop_event))
             threads.append(thread)
             thread.start()
 
@@ -113,9 +113,9 @@ def show_help():
     Animation flags:
     
         -h, --help                   -    displays this help end exit
-        -p, --player <PLAYER>        -    player whit activity will be represented by this module. Default value is \"any\",
-            which stands for detecting any mpris (playerctl) playback   
-    (Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l')    
+        -p, --player <PLAYER>        -    player whit activity will be represented by this module. 
+            Default value is \"any\", which stands for detecting any mpris (playerctl) playback.   
+            Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l'  
         -o, --off  <OPTION>          -    scripts, that shows whe player is down. 'cat' by default
         -i, --inactive   <OPTION>    -    scripts, that shows when player is up, but music is on pause. 'splash' by default
         -a, --active  <OPTION>       -    scripts, that shows whe player is up, and music is playing. 'cava' by default
