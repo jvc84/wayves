@@ -40,21 +40,21 @@ Use ```python /PATH/TO/wayves/wayves.py --help``` to read about flags and option
 
 ```
 Usage:
-    
+
     python /path/to/wayves/wayves.py [--off <OPTION>] [--inactive <OPTION>] [--active <OPTION>] [--player PLAYER]
 
 Animation flags:
 
     -h, --help                   -    displays this help end exit
-    -p, --player <PLAYER>        -    player whit activity will be represented by this module. Default value is "any",
-        which stands for detecting any mpris (playerctl) playback. 
-        (Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l')    
+    -p, --player <PLAYER>        -    player whit activity will be represented by this module. 
+        Default value is \"any\", which stands for detecting any mpris (playerctl) playback.   
+        Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l'  
     -o, --off  <OPTION>          -    scripts, that shows whe player is down. 'cat' by default
     -i, --inactive   <OPTION>    -    scripts, that shows when player is up, but music is on pause. 'splash' by default
     -a, --active  <OPTION>       -    scripts, that shows whe player is up, and music is playing. 'cava' by default
 
 Options:
-
+    
     cat                 -    ASCII cat animations
     info                -    'no sound'/'sound'
     splash              -    some different animations of 3 bars
@@ -67,7 +67,7 @@ Options:
 Cava config:
     
     In config you can configure number of bars and frame rate (and other stuff)
-    Config path         -    $HOME/.config/cava/cava_option_config    
+    Config path         -    $HOME/.config/cava/cava_option_config     
 ```
 </details>
 
