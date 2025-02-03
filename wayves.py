@@ -138,55 +138,55 @@ class Show(object):
 
         return
 
+    @staticmethod
+    def show_cava(category):
+        cache_dir = " ~/.cache/wayves"
+        cache_files = str(subprocess.check_output([f"ls {cache_dir}| wc -l 2>/dev/null"], shell=True))[2:-3]
+        if int(cache_files) > 3:
+            os.system(f"rm  {cache_dir}/*")
 
-def show_cava(category):
-    cache_dir = " ~/.cache/wayves"
-    cache_files = str(subprocess.check_output([f"ls {cache_dir}| wc -l 2>/dev/null"], shell=True))[2:-3]
-    if int(cache_files) > 3:
-        os.system(f"rm  {cache_dir}/*")
+        import  threading
+        stop_event = threading.Event()
 
-    import  threading
-    stop_event = threading.Event()
+        cava_position = option_values['cava_values'][f'{category}_cava_sections']
+        play_cava = current_directory + '/scripts/play_cava.sh'
 
-    cava_position = option_values['cava_values'][f'{category}_cava_sections']
-    play_cava = current_directory + '/scripts/play_cava.sh'
+        run_me = [play_cava, cava_position, token]
 
-    run_me = [play_cava, cava_position, token]
+        string_args = ""
 
-    string_args = ""
+        for i in run_me:
+            string_args += f"'{i}' "
 
-    for i in run_me:
-        string_args += f"'{i}' "
+        try:
+            proc = subprocess.Popen([string_args], shell=True)
+            thread1 = threading.Thread(target=proc.wait, args=())
+            thread2 = threading.Thread(target=kill_cava, args=(category, proc, stop_event))
 
-    try:
-        proc = subprocess.Popen([string_args], shell=True)
-        thread1 = threading.Thread(target=proc.wait, args=())
-        thread2 = threading.Thread(target=kill_cava, args=(category, proc, stop_event))
+            thread1.start()
+            thread2.start()
 
-        thread1.start()
-        thread2.start()
+            thread1.join()
+            thread2.join()
 
-        thread1.join()
-        thread2.join()
+        except KeyboardInterrupt:
+            print("Exit!")
+            os.system(f"pkill -f {token}")
+            stop_event.set()
+        except Exception as e:
+            print("Cannot run CAVA")
+            sys.exit(1)
 
-    except KeyboardInterrupt:
-        print("Exit!")
-        os.system(f"pkill -f {token}")
+        remaining_pids = str(
+            subprocess.check_output([f"ps aux | grep {token} " + " | awk '{print $2}'"], shell=True)
+        )[2:-3].split("\\n")
+
+        for pid in remaining_pids:
+            os.system(f"kill -9 {pid}")
+
         stop_event.set()
-    except Exception as e:
-        print("Cannot run CAVA")
-        sys.exit(1)
 
-    remaining_pids = str(
-        subprocess.check_output([f"ps aux | grep {token} " + " | awk '{print $2}'"], shell=True)
-    )[2:-3].split("\\n")
-
-    for pid in remaining_pids:
-        os.system(f"kill -9 {pid}")
-
-    stop_event.set()
-
-    return
+        return
 
 
 def detect_category(detect_fl):
