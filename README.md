@@ -1,6 +1,6 @@
 # wayves
 
-wayves is a module for bars like waybar and polybar, that shows cava and/or different animations based on chosen player status.
+wayves is a module for bars like waybar and polybar, that shows cava and/or different animations based on chosen player status
 
 ## Installation
 
