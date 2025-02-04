@@ -73,6 +73,8 @@ Cava config:
 
 ## Examples
 
+If you don't set `--player/-p`, it will track playback from all `mpris` players. Also you can set this behavior with `--payer any`
+
 ### If you just want cava:
 
 ![plot](.doc/images/cava_example.png)
