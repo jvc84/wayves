@@ -43,7 +43,7 @@ framerate = <framerate>
 <details>
 <summary>Other information</summary>
  
-Use ```python /PATH/TO/wayves/wayves.py --help``` to read about flags and options.
+Use ```python /PATH/TO/wayves/wayves.py --help``` to read about flags and options
 
 ```
 Usage:
