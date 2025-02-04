@@ -34,7 +34,8 @@ framerate = <framerate>
  
 ## Information about flags and options
 
-If you don't set `--player/-p`, it will track ALL `mpris` players' playback. Also you can set this behavior with `--player any`
+If you don't set `--player/-p`, it will track ALL `mpris` players' playback. 
+Also you can set this behavior with `--player any`
 
 <details>
 <summary>Information</summary>
