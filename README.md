@@ -33,6 +33,9 @@ framerate = <framerate>
 
  
 ## Information about flags and options
+
+#### If you don't set `--player/-p`, it will track playback from ALL `mpris` players. Also you can set this behavior with `--player any`
+
 <details>
 <summary>Information</summary>
  
@@ -72,8 +75,6 @@ Cava config:
 </details>
 
 ## Examples
-
-#### If you don't set `--player/-p`, it will track playback from ALL `mpris` players. Also you can set this behavior with `--player any`
 
 ### If you just want cava:
 
