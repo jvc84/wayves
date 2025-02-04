@@ -38,6 +38,7 @@ If you don't set `--player/-p`, it will track ALL `mpris` players' playback.
 
 Also you can set this behavior with `--player any`
 
+See available palyers with `playerctl -l` (Shows only active ones)
 
 <details>
 <summary>Information</summary>
