@@ -34,14 +34,14 @@ framerate = <framerate>
  
 ## Information about flags and options
 
-If you don't set `--player/-p`, it will track ALL `mpris` players' playback. 
+- If you don't set `--player/-p`, it will track ALL `mpris` players' playback. 
 
-Also you can set this behavior with `--player any`
+- Also you can set this behavior with `--player any`
 
-See available palyers with `playerctl -l` (Shows only active ones)
+- See available palyers with `playerctl -l` (Shows only active ones)
 
 <details>
-<summary>Information</summary>
+<summary>Other information</summary>
  
 Use ```python /PATH/TO/wayves/wayves.py --help``` to read about flags and options.
 
