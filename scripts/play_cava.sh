@@ -2,12 +2,6 @@
 
 MYDIR=$(dirname "$(realpath "$0")")
 
-#source "$MYDIR/headers.sh"
-
-# Args
-#category=${2}
-#player=${4}
-#parent_pid=${1}
 cava_position=${1}
 token=${2}
 
@@ -52,5 +46,4 @@ fi
 
 
 setsid cava -p "$cached_config" | sed -u "s/;//g;s/0/▁/g;s/1/▂/g;s/2/▃/g;s/3/▄/g;s/4/▅/g;s/5/▆/g;s/6/▇/g;s/7/█/g;" | sed -u "$cut_cava"
-#&
-#check_state
+
