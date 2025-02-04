@@ -73,7 +73,7 @@ Cava config:
 
 ## Examples
 
-If you don't set `--player/-p`, it will track playback from all `mpris` players. Also you can set this behavior with `--player any`
+### If you don't set `--player/-p`, it will track playback from all `mpris` players. Also you can set this behavior with `--player any`
 
 ### If you just want cava:
 
