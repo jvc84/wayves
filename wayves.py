@@ -227,7 +227,7 @@ def single_animation():
 
         show_animation = getattr(Show, option)
         if flag_values['off'] == "cava":
-            shared.player = "cava"
+            shared.player_name = "cava"
             current_category = "off"
         elif flag_values['off'] == "waves":
             current_category = "off"
@@ -240,7 +240,7 @@ def single_animation():
 def multiple_animations():
     current_category = 'off'
 
-    if shared.player == "":
+    if shared.player_name == "":
         print("No player specified!")
         show_help()
     while True:
@@ -275,7 +275,7 @@ def parse_arguments():
                 case "-h" | "--help":
                     show_help()
                 case "-p" | "--player":
-                    shared.player = received_flags[i + 1]
+                    shared.player_name = received_flags[i + 1]
                 case _:
                     match received_flags[i - 1]:
                         case "-p" | "--player":

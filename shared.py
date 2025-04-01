@@ -61,16 +61,16 @@ def check_player_status(player_name, stop_event):
 
 
 def get_status():
-    global player
+    global player_name
 
-    if player == "any":
+    if player_name == "any":
         command = 'playerctl -l'
     else:
-        command = f'playerctl status --player="{player}"'
+        command = f'playerctl status --player="{player_name}"'
 
     output = try_to_check_output(command)
 
-    if player == "any":
+    if player_name == "any":
         global status_any
 
         if output == b'':
