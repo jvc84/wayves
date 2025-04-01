@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+
 from assets.animations.waves_animations import waves_main, waves_start, waves_stop
 from assets.animations.nothing_animations import nothing_empty, nothing_flat
 from assets.animations.info_animations import info_sound, info_no_sound

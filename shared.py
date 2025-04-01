@@ -1,5 +1,5 @@
-import subprocess
 from sys import exit
+import subprocess
 import threading
 
 
