@@ -8,9 +8,11 @@ from assets.animations.cat_animations import cat_animations_list
 from shared import show_help, check_sound_and_player_status
 from animation_rules import token
 from pathlib import Path
-import subprocess
 from time import sleep
+
 import shared
+
+import subprocess
 import random
 import sys
 import os
@@ -63,9 +65,9 @@ def kill_cava(category, pid, stop_event):
     while True:
         sound, player = check_sound_and_player_status()
         if ((category == 'off' and player is True) or
-                (category == 'inactive' and (sound is True or player is False)) or
-                (category == 'active' and (sound is False or player is False)) or
-                stop_event.is_set()
+           (category == 'inactive' and (sound is True or player is False)) or
+           (category == 'active' and (sound is False or player is False)) or
+           stop_event.is_set()
         ):
             pid.kill()
             break
@@ -151,15 +153,15 @@ class Show(object):
         cava_position = option_values['cava_values'][f'{category}_cava_sections']
         play_cava = current_directory + '/scripts/play_cava.sh'
 
-        run_me = [play_cava, cava_position, token]
+        run_me_list = [play_cava, cava_position, token]
 
-        string_args = ""
+        run_me_string = ""
 
-        for i in run_me:
-            string_args += f"'{i}' "
+        for i in run_me_list:
+            run_me_string += f"'{i}' "
 
         try:
-            proc = subprocess.Popen([string_args], shell=True)
+            proc = subprocess.Popen([run_me_string], shell=True)
             thread1 = threading.Thread(target=proc.wait, args=())
             thread2 = threading.Thread(target=kill_cava, args=(category, proc, stop_event))
 
@@ -174,7 +176,7 @@ class Show(object):
             os.system(f"pkill -f {token}")
             stop_event.set()
         except Exception as e:
-            print("Cannot run CAVA")
+            print(f"Cannot run CAVA: {e}")
             sys.exit(1)
 
         remaining_pids = str(
@@ -261,29 +263,31 @@ def multiple_animations():
 def parse_arguments():
     received_flags = sys.argv
 
-    for i, fl in enumerate(received_flags, 0):
+    for i, _flag in enumerate(received_flags, 0):
 
-        if i == 0 or fl in options:
+        if i == 0 or _flag in options:
             continue
 
-        if "=" in fl:
-            parse_option_with_value(received_flags[i - 1], fl)
+        if "=" in _flag:
+            parse_option_with_value(received_flags[i - 1], _flag)
         else:
-            match fl:
+            match _flag:
                 case "-h" | "--help":
                     show_help()
                 case "-p" | "--player":
                     shared.player = received_flags[i + 1]
                 case _:
-                    if (received_flags[i - 1] != "-p" and
-                            received_flags[i - 1] != "--player"):
-                        try:
-                            parse_flag(fl, received_flags[i + 1])
-                        except IndexError:
-                            print("\nIncorrect flag was used!")
-                            show_help()
-                
-                
+                    match received_flags[i - 1]:
+                        case "-p" | "--player":
+                            continue
+                        case _:
+                           try:
+                               parse_flag(_flag, received_flags[i + 1])
+                           except IndexError:
+                               print("\nIncorrect flag was used!")
+                               show_help()
+
+                                    
 def main():
     parse_arguments()
 
@@ -295,3 +299,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

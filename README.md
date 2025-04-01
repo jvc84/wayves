@@ -34,7 +34,7 @@ framerate = <framerate>
  
 ## Information about flags and options
 
-- If you don't set `--player/-p`, it will track ALL `mpris` players' playback. 
+- If you don't set `--player/-p`, it will track ALL `mpris` players' playback 
 
 - Also you can set this behavior with `--player any`
 
@@ -56,9 +56,9 @@ Animation flags:
     -p, --player <PLAYER>        -    player whit activity will be represented by this module. 
         Default value is "any", which stands for detecting any mpris (playerctl) playback.   
         Unnecessary if all other flag have same value. You can get names of active players by command 'playerctl -l'  
-    -o, --off  <OPTION>          -    scripts, that shows whe player is down. 'cat' by default
-    -i, --inactive   <OPTION>    -    scripts, that shows when player is up, but music is on pause. 'splash' by default
-    -a, --active  <OPTION>       -    scripts, that shows whe player is up, and music is playing. 'cava' by default
+    -o, --off  <OPTION>          -    script, that shows when player is down. 'cat' by default
+    -i, --inactive   <OPTION>    -    script, that shows when player is up, but music is on pause. 'splash' by default
+    -a, --active  <OPTION>       -    script, that shows when player is up, and music is playing. 'cava' by default
 
 Options:
     
