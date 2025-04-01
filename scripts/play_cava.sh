@@ -1,7 +1,6 @@
 #!/bin/bash
 
-MYDIR=$(dirname "$(realpath "$0")")
-
+# Args
 cava_position=${1}
 token=${2}
 
