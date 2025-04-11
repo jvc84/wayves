@@ -35,6 +35,7 @@ else
 
     dots=${bars_string// /.}
 
+
     if [ "$cava_position" = "left" ]; then
         cut_cava="s/$dots$//"
 
