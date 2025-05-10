@@ -244,6 +244,7 @@ def multiple_animations():
     if shared.player_name == "":
         print("No player specified!")
         show_help()
+    
     while True:
         sound, player = check_sound_and_player_status()
         if player is False:
@@ -285,7 +286,7 @@ def parse_arguments():
                            try:
                                parse_flag(_flag, received_flags[i + 1])
                            except IndexError:
-                               print("\nIncorrect flag was used!")
+                               print(f"\nFlag without value was used! : '{_flag}'")
                                show_help()
 
                                     

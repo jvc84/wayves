@@ -116,7 +116,6 @@ class Animation(object):
             os.system(f"echo '{frame}'")
             sleep(time)
 
-
         stop_event.set()
 
 
@@ -126,11 +125,12 @@ class Animation(object):
 
         else:
             stop_event = threading.Event()
+            animate_args = (self.time, self.frames, stop_event)
 
             if 'full' in args:
-                thread1 = threading.Thread(target=self.animate_full, args=(self.time, self.frames, stop_event))
+                thread1 = threading.Thread(target=self.animate_full, args=animate_args)
             else:
-                thread1 = threading.Thread(target=self.animate, args=(self.time, self.frames, stop_event))
+                thread1 = threading.Thread(target=self.animate, args=animate_args)
 
             thread2 = threading.Thread(target=self.check_player, args=(category, stop_event,))
 

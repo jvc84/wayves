@@ -5,6 +5,10 @@ cava_position=${1}
 token=${2}
 
 # Variables
+file="$0"
+DIR="$(dirname "$(realpath "$file" 2> /dev/null)")"
+PARENTDIR=$(dirname "$DIR")
+
 cache_path="$HOME/.cache/wayves"
 cached_config="$cache_path/cava_option_config_$token"
 config_path="$HOME/.config/cava"

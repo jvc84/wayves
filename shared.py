@@ -41,9 +41,9 @@ def check_sound_and_player_status() -> (bool, bool):
     return output_sound, output_player
 
 
-def check_playerctl(player_name):
+def check_playerctl(_player_name):
     try:
-        output = subprocess.check_output([f'playerctl status --player="{player_name}"'], shell=True)
+        output = subprocess.check_output([f'playerctl status --player="{_player_name}"'], shell=True)
         if b"Playing" in output:
             return 1
         else:
@@ -51,8 +51,9 @@ def check_playerctl(player_name):
     except subprocess.CalledProcessError as e:
         return 0
 
-def check_player_status(player_name, stop_event):
-    result = check_playerctl(player_name)
+
+def check_player_status(_player_name, stop_event):
+    result = check_playerctl(_player_name)
     if result == 1 and not stop_event.is_set():
         global status_any
         status_any = b'Playing\n'
