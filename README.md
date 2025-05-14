@@ -91,7 +91,7 @@ Cava config:
 },
 ```
 
-### If you want mini waves to move when music is on:
+### If you want mini waves to move when music in specific app is on:
 
 ![plot](.doc/images/waves_example.png)
 
