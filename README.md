@@ -131,7 +131,8 @@ module for right audio channel:
 ```
 "custom/wayves": {
     "format": "{}",
-    "exec": "python /PATH/TO/wayves/wayves.py -o cat -i cat -a cat"
+    "exec": "python /PATH/TO/wayves/wayves.py -o cat -i cat -a cat",
+    "escape": true,
 },
 
 ```

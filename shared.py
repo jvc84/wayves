@@ -19,7 +19,7 @@ def check_sound_and_player_status() -> (bool, bool):
     global player_name
 
     if player_name == "cava":
-        return True
+        return True, False
 
     try:
         status = get_status()
