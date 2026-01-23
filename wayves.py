@@ -1,5 +1,14 @@
 #!/usr/bin/python3
 
+import signal
+import ctypes
+import subprocess
+import random
+import sys
+import os
+
+from threading import Event
+from time import sleep
 
 from assets.animations.waves_animations import waves_main, waves_start, waves_stop
 from assets.animations.nothing_animations import nothing_empty, nothing_flat
@@ -7,19 +16,14 @@ from assets.animations.info_animations import info_sound, info_no_sound
 from assets.animations.splash_animations import splash_animations_list
 from assets.animations.cat_animations import cat_animations_list
 from shared import show_help, check_sound_and_player_status
-from animation_rules import token
-from pathlib import Path
-from time import sleep
+from animation_rules import TOKEN, PROJECT_DIRECTORY
+from animation_rules import kill_token_processes
 
+import animation_rules
 import shared
 
-import subprocess
-import random
-import sys
-import os
 
-
-current_directory = str(Path(__file__).parent.resolve())
+proc_stop_event: Event | None = None
 splash_animation_index = 0
 
 options = ["cat", "waves", "cava", "info", "splash", "empty", "flat"]
@@ -61,14 +65,13 @@ flag_values = {
 }
 
 
-
-def kill_cava(category, pid, stop_event):
+def kill_cava(category, pid, proc_stop_event):
     while True:
         sound, player = check_sound_and_player_status()
         if ((category == 'off' and player is True) or
            (category == 'inactive' and (sound is True or player is False)) or
            (category == 'active' and (sound is False or player is False)) or
-           stop_event.is_set()
+           proc_stop_event.is_set()
         ):
             pid.kill()
             break
@@ -82,8 +85,6 @@ class Show(object):
         empty_frames = (empty_output + ',') * 10
         nothing_empty.animation(category, 1, empty_frames)
 
-        return
-
     @staticmethod
     def show_flat(category):
         flat_output = '▁' * option_values['flat_values'][f'{category}_flat_sections']
@@ -91,15 +92,11 @@ class Show(object):
 
         nothing_flat.animation(category, 1, flat_frames)
 
-        return
-
     @staticmethod
     def show_waves(category):
         waves_start.animation('raw')
         waves_main.animation_without_transition(category, 'full')
         waves_stop.animation('raw')
-
-        return
 
     @staticmethod
     def show_info(category):
@@ -108,8 +105,6 @@ class Show(object):
             info_sound.animation(category)
         else:
             info_no_sound.animation(category)
-
-        return
 
     @staticmethod
     def show_splash(category):
@@ -132,14 +127,10 @@ class Show(object):
                 splash_animation_index = index + 1
                 break
 
-        return
-
     @staticmethod
     def show_cat(category):
         index = random.randint(0, len(cat_animations_list) - 1)
         cat_animations_list[index].animation(category)
-
-        return
 
     @staticmethod
     def show_cava(category):
@@ -149,12 +140,13 @@ class Show(object):
             os.system(f"rm  {cache_dir}/*")
 
         import  threading
-        stop_event = threading.Event()
+        global proc_stop_event
+        proc_stop_event = threading.Event()
 
         cava_position = option_values['cava_values'][f'{category}_cava_sections']
-        play_cava = current_directory + '/scripts/play_cava.sh'
+        play_cava = PROJECT_DIRECTORY + '/scripts/play_cava.sh'
 
-        run_me_list = [play_cava, cava_position, token]
+        run_me_list = [play_cava, cava_position, TOKEN]
 
         run_me_string = ""
 
@@ -164,7 +156,7 @@ class Show(object):
         try:
             proc = subprocess.Popen([run_me_string], shell=True)
             thread1 = threading.Thread(target=proc.wait, args=())
-            thread2 = threading.Thread(target=kill_cava, args=(category, proc, stop_event))
+            thread2 = threading.Thread(target=kill_cava, args=(category, proc, proc_stop_event))
 
             thread1.start()
             thread2.start()
@@ -173,23 +165,14 @@ class Show(object):
             thread2.join()
 
         except KeyboardInterrupt:
-            print("Exit!")
-            os.system(f"pkill -f {token}")
-            stop_event.set()
+            raise KeyboardInterrupt()
+
         except Exception as e:
             print(f"Cannot run CAVA: {e}")
             sys.exit(1)
 
-        remaining_pids = str(
-            subprocess.check_output([f"ps aux | grep {token} " + " | awk '{print $2}'"], shell=True)
-        )[2:-3].split("\\n")
-
-        for pid in remaining_pids:
-            os.system(f"kill -9 {pid}")
-
-        stop_event.set()
-
-        return
+        kill_token_processes()
+        proc_stop_event.set()
 
 
 def detect_category(detect_fl):
@@ -228,7 +211,7 @@ def single_animation():
 
         show_animation = getattr(Show, option)
         if flag_values['off'] == "cava":
-            shared.player_name = "cava"
+            shared.PLAYER_NAME = "cava"
             current_category = "off"
         elif flag_values['off'] == "waves":
             current_category = "off"
@@ -241,7 +224,7 @@ def single_animation():
 def multiple_animations():
     current_category = 'off'
 
-    if shared.player_name == "":
+    if shared.PLAYER_NAME == "":
         print("No player specified!")
         show_help()
     
@@ -277,7 +260,7 @@ def parse_arguments():
                 case "-h" | "--help":
                     show_help()
                 case "-p" | "--player":
-                    shared.player_name = received_flags[i + 1]
+                    shared.PLAYER_NAME = received_flags[i + 1]
                 case _:
                     match received_flags[i - 1]:
                         case "-p" | "--player":
@@ -299,6 +282,35 @@ def main():
         multiple_animations()
 
 
-if __name__ == "__main__":
-    main()
+def bind_to_parent_proc():
+    libc = ctypes.CDLL("libc.so.6")
+    PR_SET_PDEATHSIG = 1
 
+    libc.prctl(PR_SET_PDEATHSIG, signal.SIGTERM)
+
+    if os.getppid() == 1:
+        os.kill(os.getpid(), signal.SIGTERM)
+
+
+bind_to_parent_proc()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Keyboard interrupt. Exiting!")
+
+        kill_token_processes()
+
+        events_list = [
+            proc_stop_event,
+            animation_rules.animation_stop_event,
+            animation_rules.full_animation_stop_event
+        ]
+
+        for event in events_list:
+            if event:
+                event.set()
+
+        sys.exit(0)

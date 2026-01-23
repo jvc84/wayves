@@ -1,24 +1,17 @@
-from sys import exit
 import subprocess
 import threading
 
-
-player_name = "any"
-status_any = b'Paused\n'
+from sys import exit
 
 
-def try_to_check_output(command):
-    try:
-        out = subprocess.check_output([command], shell=True)
-    except Exception as e:
-        out =  b''
+PLAYER_NAME = "any"
+ANY_PLAYER_STATUS = b'Paused\n'
 
-    return out
 
 def check_sound_and_player_status() -> (bool, bool):
-    global player_name
+    global PLAYER_NAME
 
-    if player_name == "cava":
+    if PLAYER_NAME == "cava":
         return True, False
 
     try:
@@ -41,58 +34,59 @@ def check_sound_and_player_status() -> (bool, bool):
     return output_sound, output_player
 
 
-def check_playerctl(_player_name):
+def check_playerctl(player_slug):
     try:
-        output = subprocess.check_output([f'playerctl status --player="{_player_name}"'], shell=True)
+        output = subprocess.check_output([f'playerctl status --player="{player_slug}"'], shell=True)
+
         if b"Playing" in output:
             return 1
         else:
             return 0
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         return 0
 
 
-def check_player_status(_player_name, stop_event):
-    result = check_playerctl(_player_name)
+def check_player_status(player_slug, stop_event):
+    result = check_playerctl(player_slug)
+
     if result == 1 and not stop_event.is_set():
-        global status_any
-        status_any = b'Playing\n'
+        global ANY_PLAYER_STATUS
+        ANY_PLAYER_STATUS = b'Playing\n'
         stop_event.set()
     return 0
 
 
 def get_status():
-    global player_name
+    global PLAYER_NAME
 
-    if player_name == "any":
+    if PLAYER_NAME == "any":
         command = 'playerctl -l'
     else:
-        command = f'playerctl status --player="{player_name}"'
+        command = f'playerctl status --player="{PLAYER_NAME}"'
 
-    output = try_to_check_output(command)
+    output = subprocess.check_output([command], shell=True) or None
 
-    if player_name == "any":
-        global status_any
+    if PLAYER_NAME == "any":
+        global ANY_PLAYER_STATUS
 
-        if output == b'':
+        if not output:
             return  b'Stopped\n'
 
-        status_any = b'Paused\n'
+        ANY_PLAYER_STATUS = b'Paused\n'
 
         stop_event = threading.Event()
         players = str(subprocess.check_output(['playerctl', '-l'], text=True))[:-1].split('\n')
 
         threads = []
-        for player_name in players:
-            thread = threading.Thread(target=check_player_status, args=(player_name, stop_event))
+        for player_slug in players:
+            thread = threading.Thread(target=check_player_status, args=(player_slug, stop_event))
             threads.append(thread)
             thread.start()
 
         for thread in threads:
             thread.join()
 
-
-        output = status_any
+        output = ANY_PLAYER_STATUS
 
     return output
 
